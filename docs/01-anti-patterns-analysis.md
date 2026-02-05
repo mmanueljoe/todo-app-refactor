@@ -19,6 +19,7 @@ Before diving into the problems, let's understand what happens when React "re-re
 ## Problem 1: Class Components Instead of Function Components
 
 ### Where it happens:
+
 - `TodoApp.tsx` (the main component)
 - `TodoForm.tsx` (the form for adding todos)
 
@@ -50,6 +51,7 @@ function TodoApp() {
 ### Why it matters:
 
 Function components can use "hooks" - special tools that help with performance:
+
 - `useMemo` - remembers calculated values so you don't recalculate them unnecessarily
 - `useCallback` - remembers functions so they don't get recreated every time
 - `React.memo` - tells React "only re-render this if the inputs actually changed"
@@ -61,11 +63,13 @@ Class components can't use these tools directly, making optimization much harder
 ## Problem 2: Everything Re-renders When Anything Changes
 
 ### Where it happens:
+
 - Every component in the app
 
 ### What's wrong:
 
 In the current app, when you type ONE letter in the search box:
+
 1. The search state changes in `TodoApp`
 2. `TodoApp` re-renders
 3. ALL child components re-render too: `TodoForm`, `SearchBox`, `Stats`, `TodoAnalytics`, `TodoList`
@@ -86,6 +90,7 @@ Wrap components with `React.memo()` to tell React: "Only re-render this componen
 ## Problem 3: Functions Get Recreated Every Time
 
 ### Where it happens:
+
 - `TodoApp.tsx`: `addTodo`, `toggleTodo`, `deleteTodo`, `handleSearch`, `handleSort`, `handleFilterTag`
 - `TodoItem.tsx`: `onClick={() => onDelete(todo.id)}`
 - `TodoAnalytics.tsx`: `onClick={() => onSort("date")}`
@@ -118,6 +123,7 @@ Use `useCallback` to tell React: "Remember this function and reuse the same one 
 ## Problem 4: Expensive Calculations Run Every Time
 
 ### Where it happens:
+
 - `Stats.tsx`: Counting completed todos, calculating percentages
 - `TodoAnalytics.tsx`: Building tag lists, calculating completion rates
 - `TodoList.tsx`: Filtering and sorting the todo list
@@ -128,15 +134,16 @@ Look at this code from `Stats.tsx`:
 
 ```tsx
 // This runs EVERY time the component renders
-const filteredTodos = todos.filter(todo => 
-  todo.text.toLowerCase().includes(searchQuery.toLowerCase())
+const filteredTodos = todos.filter((todo) =>
+  todo.text.toLowerCase().includes(searchQuery.toLowerCase()),
 )
-const completedTodos = filteredTodos.filter(todo => todo.completed).length
-const highPriorityCount = filteredTodos.filter(todo => todo.priority === "high").length
+const completedTodos = filteredTodos.filter((todo) => todo.completed).length
+const highPriorityCount = filteredTodos.filter((todo) => todo.priority === 'high').length
 // ... more filtering
 ```
 
 With 50 todos, this means:
+
 - Loop through 50 items to filter by search
 - Loop through results to count completed
 - Loop through results to count high priority
@@ -158,6 +165,7 @@ Use `useMemo` to tell React: "Remember this calculated value. Only recalculate i
 ## Problem 5: Prop Drilling (Passing Data Through Many Levels)
 
 ### Where it happens:
+
 - `TodoApp` passes `todos`, `onToggle`, `onDelete` to `Stats` (but Stats doesn't use `onToggle` or `onDelete`!)
 - `TodoApp` passes everything down to `TodoList`, which passes things to `TodoItem`
 
@@ -169,7 +177,7 @@ The data flow looks like this:
 TodoApp (has all the state)
     ├── TodoForm (needs: addTodo)
     ├── SearchBox (needs: searchQuery, onSearch)
-    ├── Stats (needs: todos, searchQuery) 
+    ├── Stats (needs: todos, searchQuery)
     │         (receives but doesn't use: onToggle, onDelete)
     ├── TodoAnalytics (needs: todos, sortBy, filterTag, onSort, onFilterTag)
     └── TodoList (needs: todos, onToggle, onDelete, searchQuery, sortBy, filterTag)
@@ -193,6 +201,7 @@ Create a "Context" - a way to share data that skips the middle components. Compo
 ## Problem 6: Directly Changing (Mutating) State
 
 ### Where it happens:
+
 - `TodoApp.tsx` in the `addTodo` method
 
 ### What's wrong:
@@ -210,6 +219,7 @@ addTodo = (text, priority) => {
 React compares the old state to the new state to decide what changed. If you mutate (directly change) the existing array, React might think nothing changed because it's still the same array object.
 
 This can cause:
+
 - UI not updating when it should
 - Weird bugs that are hard to track down
 - `React.memo` not working correctly
@@ -229,6 +239,7 @@ this.setState({ todos: newTodos })
 ## Problem 7: No Debouncing on Search Input
 
 ### Where it happens:
+
 - `SearchBox.tsx`
 
 ### What's wrong:
@@ -242,8 +253,9 @@ Every keystroke immediately updates the state and triggers a re-render of the en
 ### Why it matters:
 
 If someone types "hello" quickly:
+
 - 'h' → full app re-render
-- 'he' → full app re-render  
+- 'he' → full app re-render
 - 'hel' → full app re-render
 - 'hell' → full app re-render
 - 'hello' → full app re-render
@@ -259,6 +271,7 @@ Add "debouncing" - wait until the user stops typing for a moment (e.g., 300ms) b
 ## Problem 8: Same Type Defined in Multiple Files
 
 ### Where it happens:
+
 - The `Todo` interface is copy-pasted in 5 different files
 
 ### What's wrong:
@@ -296,6 +309,7 @@ Create one `types.ts` file with the `Todo` interface, and import it everywhere.
 ## Problem 9: No List Virtualization
 
 ### Where it happens:
+
 - `TodoList.tsx` renders all 50 todos at once
 
 ### What's wrong:
@@ -305,6 +319,7 @@ Even if only 10 todos fit on your screen, all 50 are rendered in the DOM (the pa
 ### Why it matters:
 
 With 50 items, it's not too bad. But imagine 1000 todos - that's 1000 DOM elements, each with multiple child elements. The browser has to:
+
 - Create all those elements
 - Keep them in memory
 - Check them during re-renders
@@ -317,17 +332,17 @@ Use "virtualization" - only render the items that are actually visible on screen
 
 ## Summary: What We'll Fix
 
-| Problem | Solution | React Tool |
-|---------|----------|------------|
-| Class components | Convert to function components | Hooks |
-| Everything re-renders | Skip unnecessary re-renders | `React.memo` |
-| Functions recreated | Remember functions | `useCallback` |
-| Calculations repeated | Remember results | `useMemo` |
-| Prop drilling | Share state directly | Context API |
-| State mutation | Create new objects | Spread operator |
-| Search triggers too often | Wait for typing pause | Debounce |
-| Duplicate type definitions | Single source of truth | Shared types file |
-| All items rendered | Only render visible items | react-window |
+| Problem                    | Solution                       | React Tool        |
+| -------------------------- | ------------------------------ | ----------------- |
+| Class components           | Convert to function components | Hooks             |
+| Everything re-renders      | Skip unnecessary re-renders    | `React.memo`      |
+| Functions recreated        | Remember functions             | `useCallback`     |
+| Calculations repeated      | Remember results               | `useMemo`         |
+| Prop drilling              | Share state directly           | Context API       |
+| State mutation             | Create new objects             | Spread operator   |
+| Search triggers too often  | Wait for typing pause          | Debounce          |
+| Duplicate type definitions | Single source of truth         | Shared types file |
+| All items rendered         | Only render visible items      | react-window      |
 
 ---
 

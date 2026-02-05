@@ -1,15 +1,15 @@
 /**
  * TodoForm - Form for adding new todos
- * 
+ *
  * WHAT CHANGED:
  * Before: Class component with internal state
  * After: Function component with useState hooks
- * 
+ *
  * OPTIMIZATIONS APPLIED:
  * 1. React.memo - Prevents re-render when parent re-renders (if props unchanged)
  * 2. Gets addTodo from context - no prop drilling needed
  * 3. Local state for input values - changes here don't affect the rest of the app
- * 
+ *
  * WHY LOCAL STATE IS FINE HERE:
  * The input value and selected priority only matter to this form.
  * Other components don't need to know what you're typing until you submit.
@@ -26,7 +26,7 @@ const TodoForm = memo(function TodoForm() {
   // Local state - only this component cares about these values
   const [inputValue, setInputValue] = useState('')
   const [priority, setPriority] = useState<Priority>('medium')
-  
+
   // Get addTodo from context
   const { addTodo } = useTodos()
 
@@ -39,16 +39,19 @@ const TodoForm = memo(function TodoForm() {
     setPriority(e.target.value as Priority)
   }, [])
 
-  const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    // Sanitize user input before adding - removes any HTML/script tags
-    const sanitizedText = sanitizeUserInput(inputValue)
-    if (sanitizedText) {
-      addTodo(sanitizedText, priority)
-      setInputValue('')
-      setPriority('medium')
-    }
-  }, [inputValue, priority, addTodo])
+  const handleSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      // Sanitize user input before adding - removes any HTML/script tags
+      const sanitizedText = sanitizeUserInput(inputValue)
+      if (sanitizedText) {
+        addTodo(sanitizedText, priority)
+        setInputValue('')
+        setPriority('medium')
+      }
+    },
+    [inputValue, priority, addTodo],
+  )
 
   return (
     <form onSubmit={handleSubmit} className="flex gap-2">

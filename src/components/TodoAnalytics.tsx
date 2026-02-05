@@ -1,12 +1,12 @@
 /**
  * TodoAnalytics - Sort and filter controls with tag analytics
- * 
+ *
  * OPTIMIZATIONS APPLIED:
  * 1. React.memo - Prevents unnecessary re-renders
  * 2. useMemo - Caches expensive calculations (priority distribution, completion rates)
  * 3. useCallback - Memoizes click handlers
  * 4. Gets data from context instead of props
- * 
+ *
  * WHAT CHANGED:
  * Before: All calculations ran on every render
  * Before: New click handlers created for each button on every render
@@ -26,32 +26,35 @@ const TodoAnalytics = memo(function TodoAnalytics() {
         acc[todo.priority] = (acc[todo.priority] || 0) + 1
         return acc
       },
-      { low: 0, medium: 0, high: 0 }
+      { low: 0, medium: 0, high: 0 },
     )
   }, [todos])
 
   // Memoize completion rate by tag calculation
   const completionByTag = useMemo(() => {
-    return Object.keys(allTags).reduce((acc, tag) => {
-      const tagTodos = todos.filter(todo => todo.tags.includes(tag))
-      const completed = tagTodos.filter(t => t.completed).length
-      acc[tag] = tagTodos.length > 0 ? Math.round((completed / tagTodos.length) * 100) : 0
-      return acc
-    }, {} as Record<string, number>)
+    return Object.keys(allTags).reduce(
+      (acc, tag) => {
+        const tagTodos = todos.filter((todo) => todo.tags.includes(tag))
+        const completed = tagTodos.filter((t) => t.completed).length
+        acc[tag] = tagTodos.length > 0 ? Math.round((completed / tagTodos.length) * 100) : 0
+        return acc
+      },
+      {} as Record<string, number>,
+    )
   }, [todos, allTags])
 
   // Memoized handlers for sort buttons
   const handleSortByDate = useCallback(() => setSortBy('date'), [setSortBy])
   const handleSortByPriority = useCallback(() => setSortBy('priority'), [setSortBy])
-  
+
   // Memoized handler for clearing tag filter
   const handleClearFilter = useCallback(() => setFilterTag(null), [setFilterTag])
-  
+
   // Factory function for tag filter handlers
   // This is memoized and returns stable handlers for each tag
   const createTagFilterHandler = useCallback(
     (tag: string) => () => setFilterTag(tag),
-    [setFilterTag]
+    [setFilterTag],
   )
 
   return (
@@ -87,11 +90,7 @@ const TodoAnalytics = memo(function TodoAnalytics() {
       <div>
         <h3 className="text-lg font-semibold text-foreground mb-3">Filter by Tags</h3>
         <div className="flex flex-wrap gap-2">
-          <TagButton
-            label="All"
-            isActive={filterTag === null}
-            onClick={handleClearFilter}
-          />
+          <TagButton label="All" isActive={filterTag === null} onClick={handleClearFilter} />
           {Object.entries(allTags).map(([tag, count]) => (
             <TagButton
               key={tag}

@@ -83,18 +83,18 @@ All 50 todos were rendered in the DOM, even if only 10 were visible on screen.
 
 ## How We Fixed It
 
-| Problem | Solution | React Tool |
-|---------|----------|------------|
-| Class components | Convert to function components | Hooks |
-| Everything re-renders | Skip unnecessary re-renders | `React.memo` |
-| Functions recreated | Remember function references | `useCallback` |
-| Calculations repeated | Cache calculated values | `useMemo` |
-| Prop drilling | Share state directly | Context API |
-| State mutation | Create new objects/arrays | Spread operator |
-| Search triggers too often | Wait for typing pause | Debouncing |
-| All items rendered | Only render visible items | react-window |
-| XSS vulnerability | Sanitize user input | DOMPurify |
-| Large initial bundle | Load on demand | React.lazy + Suspense |
+| Problem                   | Solution                       | React Tool            |
+| ------------------------- | ------------------------------ | --------------------- |
+| Class components          | Convert to function components | Hooks                 |
+| Everything re-renders     | Skip unnecessary re-renders    | `React.memo`          |
+| Functions recreated       | Remember function references   | `useCallback`         |
+| Calculations repeated     | Cache calculated values        | `useMemo`             |
+| Prop drilling             | Share state directly           | Context API           |
+| State mutation            | Create new objects/arrays      | Spread operator       |
+| Search triggers too often | Wait for typing pause          | Debouncing            |
+| All items rendered        | Only render visible items      | react-window          |
+| XSS vulnerability         | Sanitize user input            | DOMPurify             |
+| Large initial bundle      | Load on demand                 | React.lazy + Suspense |
 
 ## Project Structure
 
@@ -161,6 +161,7 @@ yarn dev
 ![Before Optimization](./screenshots/before-optimization.png)
 
 **What to capture:**
+
 - Open React DevTools Profiler on the legacy code
 - Record while typing ONE letter in search
 - Screenshot the flamegraph showing all components highlighted (re-rendered)
@@ -173,6 +174,7 @@ yarn dev
 ![After Optimization](./screenshots/after-optimization.png)
 
 **What to capture:**
+
 - Open React DevTools Profiler on the refactored code
 - Record while typing ONE letter in search
 - Screenshot the flamegraph showing only necessary components highlighted
@@ -204,25 +206,26 @@ yarn dev
 
 ### What the Profiler Shows
 
-| Color | Meaning |
-|-------|---------|
-| Gray | Component did NOT re-render (good!) |
-| Green | Component re-rendered quickly |
-| Yellow | Component re-rendered, took some time |
+| Color      | Meaning                                        |
+| ---------- | ---------------------------------------------- |
+| Gray       | Component did NOT re-render (good!)            |
+| Green      | Component re-rendered quickly                  |
+| Yellow     | Component re-rendered, took some time          |
 | Orange/Red | Component re-rendered slowly (potential issue) |
 
 ### Expected Improvements
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Components re-rendered on search keystroke | 55+ | ~5-10 |
-| Filter calculations per keystroke | 5 (typing "hello") | 1 (debounced) |
-| DOM elements for 50 todos | 50 items always | ~10-15 visible (virtualized) |
-| Initial bundle size | All at once | Split with lazy loading |
+| Metric                                     | Before             | After                        |
+| ------------------------------------------ | ------------------ | ---------------------------- |
+| Components re-rendered on search keystroke | 55+                | ~5-10                        |
+| Filter calculations per keystroke          | 5 (typing "hello") | 1 (debounced)                |
+| DOM elements for 50 todos                  | 50 items always    | ~10-15 visible (virtualized) |
+| Initial bundle size                        | All at once        | Split with lazy loading      |
 
 ## Key Concepts Learned
 
 ### React.memo
+
 Tells React: "Only re-render this component if its props actually changed."
 
 ```tsx
@@ -232,29 +235,35 @@ const TodoItem = memo(function TodoItem({ todo, onToggle }) {
 ```
 
 ### useCallback
+
 Tells React: "Remember this function. Don't create a new one unless dependencies change."
 
 ```tsx
-const handleDelete = useCallback((id) => {
-  deleteTodo(id)
-}, [deleteTodo])
+const handleDelete = useCallback(
+  (id) => {
+    deleteTodo(id)
+  },
+  [deleteTodo],
+)
 ```
 
 ### useMemo
+
 Tells React: "Remember this calculated value. Only recalculate if dependencies change."
 
 ```tsx
 const filteredTodos = useMemo(() => {
-  return todos.filter(todo => todo.text.includes(search))
+  return todos.filter((todo) => todo.text.includes(search))
 }, [todos, search])
 ```
 
 ### Context API
+
 Allows components to access shared data without passing it through every level.
 
 ```tsx
 // Provide
-<TodoProvider>
+;<TodoProvider>
   <App />
 </TodoProvider>
 
@@ -263,6 +272,7 @@ const { todos, addTodo } = useTodos()
 ```
 
 ### Debouncing
+
 Waits until the user stops typing before triggering an action.
 
 ```tsx
@@ -271,14 +281,11 @@ const debouncedSearch = useDebounce(searchQuery, 300)
 ```
 
 ### Virtualization
+
 Only renders items visible on screen. Uses react-window.
 
 ```tsx
-<FixedSizeList
-  height={400}
-  itemCount={1000}
-  itemSize={50}
->
+<FixedSizeList height={400} itemCount={1000} itemSize={50}>
   {Row}
 </FixedSizeList>
 // Only ~10 items rendered at once, not all 1000

@@ -1,16 +1,16 @@
 /**
  * TodoApp - Main container component
- * 
+ *
  * WHAT CHANGED:
  * Before: Class component that held ALL state and passed it to every child
  * After: Simple layout component - state lives in TodoContext
- * 
+ *
  * WHY THIS IS BETTER:
  * 1. This component is now just responsible for layout
  * 2. State management is centralized in TodoContext
  * 3. Child components get what they need directly from context
  * 4. No more prop drilling through this component
- * 
+ *
  * The actual "work" (state, filtering, memoization) happens in:
  * - TodoContext: Global state and memoized computations
  * - Individual components: Their own local state and rendering
@@ -47,7 +47,7 @@ const TodoApp = memo(function TodoApp() {
           <SearchBox />
           <Stats />
           <TodoAnalytics />
-          
+
           {/* Toggle for virtualization demo */}
           <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
             <input

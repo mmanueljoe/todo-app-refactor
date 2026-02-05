@@ -56,14 +56,14 @@ For this small app, the current structure works well. For larger apps, feature-b
 
 ### What Goes Where
 
-| Folder | What to Put Here |
-|--------|------------------|
-| `components/` | React components that render UI |
-| `context/` | React Context providers for shared state |
-| `hooks/` | Custom hooks (reusable logic) |
-| `types/` | TypeScript interfaces and types |
-| `utils/` | Pure functions that don't use React |
-| `styles/` | CSS files |
+| Folder        | What to Put Here                         |
+| ------------- | ---------------------------------------- |
+| `components/` | React components that render UI          |
+| `context/`    | React Context providers for shared state |
+| `hooks/`      | Custom hooks (reusable logic)            |
+| `types/`      | TypeScript interfaces and types          |
+| `utils/`      | Pure functions that don't use React      |
+| `styles/`     | CSS files                                |
 
 ### Benefits of This Structure
 

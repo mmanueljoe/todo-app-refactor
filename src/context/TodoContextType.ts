@@ -8,7 +8,7 @@ export interface TodoContextType {
   searchQuery: string
   sortBy: SortBy
   filterTag: string | null
-  
+
   // Actions (functions to modify state)
   addTodo: (text: string, priority: Priority) => void
   toggleTodo: (id: number) => void
@@ -16,7 +16,7 @@ export interface TodoContextType {
   setSearchQuery: (query: string) => void
   setSortBy: (sortBy: SortBy) => void
   setFilterTag: (tag: string | null) => void
-  
+
   // Computed values (derived from state)
   filteredTodos: Todo[]
   allTags: Record<string, number>

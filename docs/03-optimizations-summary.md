@@ -11,6 +11,7 @@ This document summarizes all the optimizations applied to the Todo app.
 **What we did:** Wrapped all presentational components with `React.memo()`
 
 **Files changed:**
+
 - `TodoItem.tsx`
 - `TodoList.tsx`
 - `TodoForm.tsx`
@@ -28,12 +29,14 @@ After: Typing in search box → Only SearchBox and filtered list re-render
 **What we did:** Wrapped event handlers in `useCallback()`
 
 **Where:**
+
 - `TodoContext.tsx`: `addTodo`, `toggleTodo`, `deleteTodo`
 - `TodoForm.tsx`: `handleSubmit`, `handleInputChange`, `handlePriorityChange`
 - `SearchBox.tsx`: `handleChange`
 - `TodoAnalytics.tsx`: `handleSortByDate`, `handleSortByPriority`, etc.
 
 **How it helps:**
+
 - Functions maintain the same reference between renders
 - Components using `React.memo` won't re-render just because a handler was "recreated"
 
@@ -42,6 +45,7 @@ After: Typing in search box → Only SearchBox and filtered list re-render
 **What we did:** Wrapped expensive calculations in `useMemo()`
 
 **Where:**
+
 - `TodoContext.tsx`: `filteredTodos`, `allTags`
 - `Stats.tsx`: All statistics calculations
 - `TodoAnalytics.tsx`: `priorityDistribution`, `completionByTag`
@@ -49,6 +53,7 @@ After: Typing in search box → Only SearchBox and filtered list re-render
 - `TodoItem.tsx`: `priorityColor`
 
 **How it helps:**
+
 - Calculations only run when their dependencies change
 - Typing in search doesn't recalculate things that don't depend on search
 
@@ -57,9 +62,11 @@ After: Typing in search box → Only SearchBox and filtered list re-render
 **What we did:** Created `TodoContext` to hold all shared state
 
 **Files created:**
+
 - `src/context/TodoContext.tsx`
 
 **How it helps:**
+
 - No more prop drilling through multiple component levels
 - Components only subscribe to the data they actually need
 - State logic is centralized and easier to maintain
@@ -69,9 +76,11 @@ After: Typing in search box → Only SearchBox and filtered list re-render
 **What we did:** Created `useDebounce` hook and applied it to search
 
 **Files created:**
+
 - `src/hooks/useDebounce.ts`
 
 **How it helps:**
+
 - Typing "hello" triggers 1 search instead of 5
 - Reduces unnecessary filtering/rendering while typing
 
@@ -84,9 +93,11 @@ After: Typing in search box → Only SearchBox and filtered list re-render
 **What we did:** Lazy load the main TodoApp component
 
 **Files changed:**
+
 - `src/App.tsx`
 
 **How it helps:**
+
 - Initial page load is faster
 - JavaScript loads on-demand
 - Good for larger apps with multiple routes/features
@@ -96,9 +107,11 @@ After: Typing in search box → Only SearchBox and filtered list re-render
 **What we did:** Created `VirtualizedTodoList` using react-window
 
 **Files created:**
+
 - `src/components/VirtualizedTodoList.tsx`
 
 **How it helps:**
+
 - Only visible items are rendered (not all 50+)
 - Scrolling stays smooth even with 1000+ items
 - Less memory usage
@@ -108,12 +121,15 @@ After: Typing in search box → Only SearchBox and filtered list re-render
 **What we did:** Created sanitization utilities using DOMPurify
 
 **Files created:**
+
 - `src/utils/sanitize.ts`
 
 **Files changed:**
+
 - `TodoForm.tsx` (uses sanitization on submit)
 
 **How it helps:**
+
 - Prevents XSS attacks from malicious user input
 - Strips dangerous HTML/script tags before storing
 
@@ -123,11 +139,13 @@ After: Typing in search box → Only SearchBox and filtered list re-render
 
 ### 1. Component Refactoring
 
-**What we did:** 
+**What we did:**
+
 - Converted class components to function components
 - Split button components in TodoAnalytics into reusable pieces
 
 **Files changed:**
+
 - `TodoForm.tsx` (was class, now function)
 - `TodoApp.tsx` (was class, now function)
 
@@ -136,9 +154,11 @@ After: Typing in search box → Only SearchBox and filtered list re-render
 **What we did:** Created single source of truth for TypeScript types
 
 **Files created:**
+
 - `src/types/index.ts`
 
 **How it helps:**
+
 - One place to update types
 - No risk of definitions getting out of sync
 
@@ -163,6 +183,7 @@ src/
 ### Before (What the Profiler Would Show)
 
 When typing ONE letter in search:
+
 - TodoApp: re-renders
 - TodoForm: re-renders (unnecessary)
 - SearchBox: re-renders
@@ -176,6 +197,7 @@ When typing ONE letter in search:
 ### After (What the Profiler Should Show)
 
 When typing ONE letter in search:
+
 - SearchBox: re-renders (local state)
 - (300ms debounce delay)
 - TodoContext: updates filteredTodos (memoized)

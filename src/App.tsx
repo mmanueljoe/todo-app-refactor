@@ -1,22 +1,22 @@
 /**
  * App - Root component with Code Splitting
- * 
+ *
  * CODE SPLITTING EXPLANATION:
- * 
+ *
  * Without code splitting:
  * - ALL JavaScript loads before the app shows anything
  * - User waits for everything, even parts they might not use
- * 
+ *
  * With code splitting (React.lazy):
  * - Components load only when needed
  * - Initial page load is faster
  * - Less JavaScript to download upfront
- * 
+ *
  * HOW IT WORKS:
  * 1. React.lazy(() => import('./Component')) - tells React to load this later
  * 2. Suspense fallback={<Loading />} - shows something while loading
  * 3. When the component is needed, React loads it and swaps in the real content
- * 
+ *
  * WHEN TO USE CODE SPLITTING:
  * - Large components that aren't immediately visible
  * - Routes/pages the user might not visit

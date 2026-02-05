@@ -1,26 +1,26 @@
 /**
  * VirtualizedTodoList - Efficiently renders large lists
- * 
+ *
  * VIRTUALIZATION EXPLANATION:
- * 
+ *
  * Without virtualization (current TodoList):
  * - 1000 todos = 1000 DOM elements rendered
  * - Even if only 10 are visible, all 1000 exist in memory
  * - Scrolling can become laggy
  * - Initial render is slow
- * 
+ *
  * With virtualization (this component):
  * - Only renders items that are visible on screen (+ a few buffer items)
  * - 1000 todos might only render ~15 DOM elements at once
  * - Scrolling stays smooth
  * - Initial render is fast
- * 
+ *
  * HOW IT WORKS:
  * 1. react-window calculates which items are visible based on scroll position
  * 2. Only those items get rendered
  * 3. As you scroll, items entering view are rendered, items leaving are removed
  * 4. It's like a window sliding over your data
- * 
+ *
  * WHEN TO USE VIRTUALIZATION:
  * - Lists with 100+ items
  * - Items with complex rendering
@@ -47,33 +47,29 @@ interface TodoRowProps {
 }
 
 // Row component - renders a single todo at a specific index
-function Row({ 
-  index, 
-  style, 
-  todos, 
-  toggleTodo, 
-  deleteTodo 
+function Row({
+  index,
+  style,
+  todos,
+  toggleTodo,
+  deleteTodo,
 }: RowComponentProps<TodoRowProps>): ReactElement {
   const todo = todos[index]
 
   return (
     <div style={style}>
-      <TodoItem
-        todo={todo}
-        onToggle={toggleTodo}
-        onDelete={deleteTodo}
-      />
+      <TodoItem todo={todo} onToggle={toggleTodo} onDelete={deleteTodo} />
     </div>
   )
 }
 
 // Section header component
-const SectionHeader = memo(function SectionHeader({ 
-  title, 
-  count 
-}: { 
+const SectionHeader = memo(function SectionHeader({
+  title,
+  count,
+}: {
   title: string
-  count: number 
+  count: number
 }) {
   return (
     <h2 className="text-xl font-semibold text-foreground mb-3">
@@ -86,33 +82,36 @@ const VirtualizedTodoList = memo(function VirtualizedTodoList() {
   const { filteredTodos, toggleTodo, deleteTodo } = useTodos()
 
   // Split into incomplete and completed
-  const { incompleteTodos, completedTodos } = useMemo(() => ({
-    incompleteTodos: filteredTodos.filter(todo => !todo.completed),
-    completedTodos: filteredTodos.filter(todo => todo.completed),
-  }), [filteredTodos])
+  const { incompleteTodos, completedTodos } = useMemo(
+    () => ({
+      incompleteTodos: filteredTodos.filter((todo) => !todo.completed),
+      completedTodos: filteredTodos.filter((todo) => todo.completed),
+    }),
+    [filteredTodos],
+  )
 
   // Row props passed to the virtualized lists
-  const incompleteRowProps = useMemo(() => ({
-    todos: incompleteTodos,
-    toggleTodo,
-    deleteTodo,
-  }), [incompleteTodos, toggleTodo, deleteTodo])
+  const incompleteRowProps = useMemo(
+    () => ({
+      todos: incompleteTodos,
+      toggleTodo,
+      deleteTodo,
+    }),
+    [incompleteTodos, toggleTodo, deleteTodo],
+  )
 
-  const completedRowProps = useMemo(() => ({
-    todos: completedTodos,
-    toggleTodo,
-    deleteTodo,
-  }), [completedTodos, toggleTodo, deleteTodo])
+  const completedRowProps = useMemo(
+    () => ({
+      todos: completedTodos,
+      toggleTodo,
+      deleteTodo,
+    }),
+    [completedTodos, toggleTodo, deleteTodo],
+  )
 
   // Calculate list heights (capped at MAX_LIST_HEIGHT)
-  const incompleteListHeight = Math.min(
-    incompleteTodos.length * ITEM_HEIGHT,
-    MAX_LIST_HEIGHT
-  )
-  const completedListHeight = Math.min(
-    completedTodos.length * ITEM_HEIGHT,
-    MAX_LIST_HEIGHT
-  )
+  const incompleteListHeight = Math.min(incompleteTodos.length * ITEM_HEIGHT, MAX_LIST_HEIGHT)
+  const completedListHeight = Math.min(completedTodos.length * ITEM_HEIGHT, MAX_LIST_HEIGHT)
 
   return (
     <div className="space-y-4">

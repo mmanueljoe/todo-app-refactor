@@ -3,7 +3,7 @@ import { TodoContext } from './TodoContextType'
 
 /**
  * Custom hook to use the TodoContext
- * 
+ *
  * WHY A CUSTOM HOOK:
  * 1. It's cleaner than writing useContext(TodoContext) everywhere
  * 2. It includes an error check - if someone forgets the Provider, they get a helpful error
