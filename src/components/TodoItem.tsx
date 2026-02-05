@@ -60,8 +60,11 @@ const TodoItem = memo(function TodoItem({ todo, onToggle, onDelete }: TodoItemPr
           <span className={`text-xs font-semibold ${priorityColor}`}>
             {todo.priority.toUpperCase()}
           </span>
-          {todo.tags.map((tag) => (
-            <span key={tag} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded">
+          {todo.tags.map((tag, index) => (
+            <span
+              key={`${tag}-${index}`}
+              className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded"
+            >
               {tag}
             </span>
           ))}
