@@ -1,32 +1,15 @@
-/**
- * Stats - Displays todo statistics
- *
- * OPTIMIZATIONS APPLIED:
- * 1. React.memo - Prevents re-render if context values haven't changed
- * 2. useMemo - Caches all calculated statistics
- * 3. Gets only what it needs from context (no unused props like before)
- *
- * WHAT CHANGED:
- * Before: Received onToggle and onDelete props that it never used (wasteful)
- * Before: Calculated stats on every render
- * After: Only gets what it needs, calculations are memoized
- */
-
 import { memo, useMemo } from 'react'
 import { useTodos } from '@/context/useTodos'
 
 const Stats = memo(function Stats() {
   const { filteredTodos } = useTodos()
 
-  // Memoize ALL statistics calculations
-  // These only recalculate when filteredTodos changes
   const stats = useMemo(() => {
     const total = filteredTodos.length
     const completed = filteredTodos.filter((todo) => todo.completed).length
     const pending = total - completed
     const completionPercentage = total > 0 ? Math.round((completed / total) * 100) : 0
 
-    // Count by priority
     const highPriority = filteredTodos.filter((todo) => todo.priority === 'high').length
     const mediumPriority = filteredTodos.filter((todo) => todo.priority === 'medium').length
     const lowPriority = filteredTodos.filter((todo) => todo.priority === 'low').length

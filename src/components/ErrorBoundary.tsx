@@ -11,16 +11,6 @@ interface State {
   error: Error | null
 }
 
-/**
- * ErrorBoundary - Catches errors from child components
- *
- * WHY THIS EXISTS:
- * When using React.lazy and Suspense, if a component fails to load or errors,
- * the entire app could crash. This catches those errors and shows a fallback UI.
- *
- * WHY CLASS COMPONENT:
- * Error boundaries MUST be class components. React doesn't have a hook for this yet.
- */
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props)

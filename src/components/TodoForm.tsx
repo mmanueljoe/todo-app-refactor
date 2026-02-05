@@ -1,21 +1,3 @@
-/**
- * TodoForm - Form for adding new todos
- *
- * WHAT CHANGED:
- * Before: Class component with internal state
- * After: Function component with useState hooks
- *
- * OPTIMIZATIONS APPLIED:
- * 1. React.memo - Prevents re-render when parent re-renders (if props unchanged)
- * 2. Gets addTodo from context - no prop drilling needed
- * 3. Local state for input values - changes here don't affect the rest of the app
- *
- * WHY LOCAL STATE IS FINE HERE:
- * The input value and selected priority only matter to this form.
- * Other components don't need to know what you're typing until you submit.
- * So we keep this state local instead of putting it in context.
- */
-
 import { memo, useState, useCallback, type FormEvent, type ChangeEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { useTodos } from '@/context/useTodos'
@@ -23,14 +5,11 @@ import { sanitizeUserInput } from '@/utils/sanitize'
 import type { Priority } from '@/types'
 
 const TodoForm = memo(function TodoForm() {
-  // Local state - only this component cares about these values
   const [inputValue, setInputValue] = useState('')
   const [priority, setPriority] = useState<Priority>('medium')
 
-  // Get addTodo from context
   const { addTodo } = useTodos()
 
-  // Memoized handlers
   const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
   }, [])
@@ -42,7 +21,7 @@ const TodoForm = memo(function TodoForm() {
   const handleSubmit = useCallback(
     (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
-      // Sanitize user input before adding - removes any HTML/script tags
+
       const sanitizedText = sanitizeUserInput(inputValue)
       if (sanitizedText) {
         addTodo(sanitizedText, priority)

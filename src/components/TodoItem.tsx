@@ -1,16 +1,3 @@
-/**
- * TodoItem - A single todo item
- *
- * OPTIMIZATIONS APPLIED:
- * 1. React.memo - Only re-renders if props actually change
- * 2. useCallback isn't needed here because we receive stable callbacks from context
- * 3. useMemo for priorityColor - though this is a micro-optimization
- *
- * WHY React.memo MATTERS HERE:
- * Without it: Toggling todo #1 would re-render ALL 50 todo items
- * With it: Only todo #1 re-renders (its 'completed' prop changed)
- */
-
 import { memo, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import type { Todo } from '@/types'
@@ -21,11 +8,7 @@ interface TodoItemProps {
   onDelete: (id: number) => void
 }
 
-// React.memo wraps the component to prevent unnecessary re-renders
-// It does a shallow comparison of props - if they're the same, skip re-rendering
 const TodoItem = memo(function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
-  // Memoize the priority color calculation
-  // This is a small optimization - the real win is from React.memo
   const priorityColor = useMemo(() => {
     switch (todo.priority) {
       case 'high':
@@ -37,8 +20,6 @@ const TodoItem = memo(function TodoItem({ todo, onToggle, onDelete }: TodoItemPr
     }
   }, [todo.priority])
 
-  // These handlers are simple wrappers that call the memoized callbacks from context
-  // They're stable because onToggle and onDelete are memoized with useCallback
   const handleToggle = () => onToggle(todo.id)
   const handleDelete = () => onDelete(todo.id)
 

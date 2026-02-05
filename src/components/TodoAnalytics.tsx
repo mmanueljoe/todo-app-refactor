@@ -1,25 +1,9 @@
-/**
- * TodoAnalytics - Sort and filter controls with tag analytics
- *
- * OPTIMIZATIONS APPLIED:
- * 1. React.memo - Prevents unnecessary re-renders
- * 2. useMemo - Caches expensive calculations (priority distribution, completion rates)
- * 3. useCallback - Memoizes click handlers
- * 4. Gets data from context instead of props
- *
- * WHAT CHANGED:
- * Before: All calculations ran on every render
- * Before: New click handlers created for each button on every render
- * After: Calculations cached, handlers memoized
- */
-
 import { memo, useMemo, useCallback } from 'react'
 import { useTodos } from '@/context/useTodos'
 
 const TodoAnalytics = memo(function TodoAnalytics() {
   const { todos, allTags, sortBy, filterTag, setSortBy, setFilterTag } = useTodos()
 
-  // Memoize priority distribution calculation
   const priorityDistribution = useMemo(() => {
     return todos.reduce(
       (acc, todo) => {
@@ -30,7 +14,6 @@ const TodoAnalytics = memo(function TodoAnalytics() {
     )
   }, [todos])
 
-  // Memoize completion rate by tag calculation
   const completionByTag = useMemo(() => {
     return Object.keys(allTags).reduce(
       (acc, tag) => {
@@ -43,15 +26,11 @@ const TodoAnalytics = memo(function TodoAnalytics() {
     )
   }, [todos, allTags])
 
-  // Memoized handlers for sort buttons
   const handleSortByDate = useCallback(() => setSortBy('date'), [setSortBy])
   const handleSortByPriority = useCallback(() => setSortBy('priority'), [setSortBy])
 
-  // Memoized handler for clearing tag filter
   const handleClearFilter = useCallback(() => setFilterTag(null), [setFilterTag])
 
-  // Factory function for tag filter handlers
-  // This is memoized and returns stable handlers for each tag
   const createTagFilterHandler = useCallback(
     (tag: string) => () => setFilterTag(tag),
     [setFilterTag],

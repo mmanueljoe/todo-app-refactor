@@ -1,27 +1,10 @@
-/**
- * TodoList - Displays the list of todos
- *
- * OPTIMIZATIONS APPLIED:
- * 1. React.memo - Prevents re-render if props haven't changed
- * 2. useMemo - Caches the split between incomplete/completed todos
- * 3. Uses pre-filtered todos from context (filtering is memoized there)
- *
- * WHAT CHANGED:
- * Before: Received raw todos and did filtering/sorting here on every render
- * After: Receives already filtered todos from context (filtered once, used everywhere)
- */
-
 import { memo, useMemo } from 'react'
 import TodoItem from './TodoItem'
 import { useTodos } from '@/context/useTodos'
 
 const TodoList = memo(function TodoList() {
-  // Get what we need from context
-  // filteredTodos is already memoized in the context
   const { filteredTodos, toggleTodo, deleteTodo } = useTodos()
 
-  // Memoize the split between incomplete and completed
-  // Only recalculates when filteredTodos changes
   const { incompleteTodos, completedTodos } = useMemo(
     () => ({
       incompleteTodos: filteredTodos.filter((todo) => !todo.completed),
