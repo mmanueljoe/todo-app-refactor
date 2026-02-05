@@ -14,15 +14,32 @@
  * The actual "work" (state, filtering, memoization) happens in:
  * - TodoContext: Global state and memoized computations
  * - Individual components: Their own local state and rendering
+ *
+ * CODE SPLITTING:
+ * TodoAnalytics is lazy-loaded because it's heavier (includes charts).
+ * It only loads when the user scrolls to that section.
  */
 
-import { memo, useState } from 'react'
+import { memo, useState, lazy, Suspense } from 'react'
 import TodoForm from './TodoForm'
 import TodoList from './TodoList'
 import VirtualizedTodoList from './VirtualizedTodoList'
 import Stats from './Stats'
-import TodoAnalytics from './TodoAnalytics'
 import SearchBox from './SearchBox'
+import { ErrorBoundary } from './ErrorBoundary'
+
+// Lazy load TodoAnalytics since it includes charts and is heavier
+const TodoAnalytics = lazy(() => import('./TodoAnalytics'))
+
+// Fallback UI for lazy-loaded analytics
+function AnalyticsSkeleton() {
+  return (
+    <div className="space-y-4 p-4 bg-muted rounded-lg">
+      <div className="h-6 bg-muted-foreground/20 rounded w-1/3 animate-pulse" />
+      <div className="h-32 bg-muted-foreground/10 rounded animate-pulse" />
+    </div>
+  )
+}
 
 const TodoApp = memo(function TodoApp() {
   // Toggle between regular and virtualized list
@@ -46,7 +63,13 @@ const TodoApp = memo(function TodoApp() {
           <TodoForm />
           <SearchBox />
           <Stats />
-          <TodoAnalytics />
+
+          {/* Lazy load analytics - it has charts which are expensive */}
+          <ErrorBoundary>
+            <Suspense fallback={<AnalyticsSkeleton />}>
+              <TodoAnalytics />
+            </Suspense>
+          </ErrorBoundary>
 
           {/* Toggle for virtualization demo */}
           <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">

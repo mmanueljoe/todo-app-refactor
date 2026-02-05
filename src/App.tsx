@@ -26,6 +26,7 @@
 
 import { Suspense, lazy } from 'react'
 import { TodoProvider } from '@/context/TodoContext'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 // Lazy load components
 // These won't be loaded until they're actually rendered
@@ -45,17 +46,19 @@ function LoadingFallback() {
 
 function App() {
   return (
-    <TodoProvider>
-      {/* 
-        Suspense catches the "loading" state from lazy components
-        and shows the fallback until they're ready
-      */}
-      <Suspense fallback={<LoadingFallback />}>
-        <main className="min-h-screen bg-background">
-          <TodoApp />
-        </main>
-      </Suspense>
-    </TodoProvider>
+    <ErrorBoundary>
+      <TodoProvider>
+        {/* 
+          Suspense catches the "loading" state from lazy components
+          and shows the fallback until they're ready
+        */}
+        <Suspense fallback={<LoadingFallback />}>
+          <main className="min-h-screen bg-background">
+            <TodoApp />
+          </main>
+        </Suspense>
+      </TodoProvider>
+    </ErrorBoundary>
   )
 }
 
