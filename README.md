@@ -156,7 +156,6 @@ yarn dev
 
 ### Before Optimization (Legacy Code)
 
-> Add your "before" screenshot here showing all components re-rendering
 
 ![Before Optimization](./screenshots/before-optimization.png)
 
@@ -168,8 +167,6 @@ yarn dev
 - Notice: TodoForm, Stats, TodoAnalytics, and all 50 TodoItems re-render
 
 ### After Optimization (Refactored Code)
-
-> Add your "after" screenshot here showing minimal re-renders
 
 ![After Optimization](./screenshots/after-optimization.png)
 
