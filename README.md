@@ -81,7 +81,7 @@ All 50 todos were rendered in the DOM, even if only 10 were visible on screen.
 
 **Why it's a problem:** With large lists (1000+ items), this would make the app sluggish. The browser has to manage all those DOM elements.
 
-## How We Fixed It
+## How I Fixed It
 
 | Problem                   | Solution                       | React Tool            |
 | ------------------------- | ------------------------------ | --------------------- |
