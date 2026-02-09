@@ -1,31 +1,44 @@
-import { useState, useCallback, useMemo, type ReactNode } from 'react'
+import { useState, useCallback, useMemo, useRef, type ReactNode } from 'react'
 import type { Todo, Priority, SortBy } from '@/types'
 import { TodoContext } from './TodoContextType'
 
 function generateInitialTodos(): Todo[] {
-  return Array.from({ length: 50 }, (_, i) => ({
-    id: i + 1,
-    text: `Todo item ${i + 1}`,
-    completed: Math.random() > 0.7,
-    createdAt: Date.now() - Math.random() * 1000000,
-    priority: (['low', 'medium', 'high'] as const)[Math.floor(Math.random() * 3)],
-    tags: [`tag${Math.floor(Math.random() * 5)}`, `tag${Math.floor(Math.random() * 5)}`],
-  }))
+  return Array.from({ length: 50 }, (_, i) => {
+    // Generate two random tags and deduplicate to prevent duplicate keys
+    const tag1 = `tag${Math.floor(Math.random() * 5)}`
+    const tag2 = `tag${Math.floor(Math.random() * 5)}`
+    const uniqueTags = tag1 === tag2 ? [tag1] : [tag1, tag2]
+
+    return {
+      id: i + 1,
+      text: `Todo item ${i + 1}`,
+      completed: Math.random() > 0.7,
+      createdAt: Date.now() - Math.random() * 1000000,
+      priority: (['low', 'medium', 'high'] as const)[Math.floor(Math.random() * 3)],
+      tags: uniqueTags,
+    }
+  })
 }
 
 export function TodoProvider({ children }: { children: ReactNode }) {
   const [todos, setTodos] = useState<Todo[]>(generateInitialTodos)
-  const [nextId, setNextId] = useState(51)
+  // Use ref for nextId since we don't need it to trigger re-renders
+  // This keeps addTodo stable without dependencies
+  const nextIdRef = useRef(51)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<SortBy>('date')
   const [filterTag, setFilterTag] = useState<string | null>(null)
 
   const addTodo = useCallback(
     (text: string, priority: Priority) => {
+      // Use ref to get and increment ID without causing re-renders
+      // This keeps addTodo stable and prevents unnecessary re-renders
+      const newId = nextIdRef.current
+      nextIdRef.current += 1
       setTodos((currentTodos) => [
         ...currentTodos,
         {
-          id: nextId,
+          id: newId,
           text,
           completed: false,
           priority,
@@ -33,9 +46,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
           tags: [],
         },
       ])
-      setNextId((id) => id + 1)
     },
-    [nextId],
+    [], // Empty dependencies - function is now stable
   )
 
   const toggleTodo = useCallback((id: number) => {

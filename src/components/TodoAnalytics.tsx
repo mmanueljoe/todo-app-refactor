@@ -31,8 +31,13 @@ const TodoAnalytics = memo(function TodoAnalytics() {
 
   const handleClearFilter = useCallback(() => setFilterTag(null), [setFilterTag])
 
-  const createTagFilterHandler = useCallback(
-    (tag: string) => () => setFilterTag(tag),
+  // Use a single handler with data attribute instead of creating new functions
+  // This prevents creating new function references on every render
+  const handleTagClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      const tag = e.currentTarget.dataset.tag
+      setFilterTag(tag ?? null)
+    },
     [setFilterTag],
   )
 
@@ -75,7 +80,8 @@ const TodoAnalytics = memo(function TodoAnalytics() {
               key={tag}
               label={`${tag} (${count})`}
               isActive={filterTag === tag}
-              onClick={createTagFilterHandler(tag)}
+              dataTag={tag}
+              onClick={handleTagClick}
             />
           ))}
         </div>
@@ -129,13 +135,15 @@ const SortButton = memo(function SortButton({ label, isActive, onClick }: SortBu
 interface TagButtonProps {
   label: string
   isActive: boolean
-  onClick: () => void
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void
+  dataTag?: string
 }
 
-const TagButton = memo(function TagButton({ label, isActive, onClick }: TagButtonProps) {
+const TagButton = memo(function TagButton({ label, isActive, onClick, dataTag }: TagButtonProps) {
   return (
     <button
       onClick={onClick}
+      data-tag={dataTag}
       className={`px-3 py-1 rounded-full text-sm transition-colors ${
         isActive
           ? 'bg-primary text-primary-foreground'
